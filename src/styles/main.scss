@@ -1,0 +1,11 @@
+@import "./settings/reset";
+
+@import "./settings/colors.scss";
+@import "./settings//base";
+
+//Components
+@import "../components/dashboard/dashboard";
+@import "../components/brushPreview/brushPreview";
+@import "../components/brushSize/brushSize";
+@import "../components/brushColor/brushColor";
+@import "../components/button/button";

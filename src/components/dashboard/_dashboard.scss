@@ -1,0 +1,26 @@
+.dashboard {
+  min-width: 200px;
+  height: 100vh;
+  background-color: $background-dashboard-color;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  &__brush-title {
+    font-weight: bold;
+    margin: 15px 0;
+  }
+
+  &__btn-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  &__brush-color-active {
+    width: 150px;
+    height: 30px;
+    background-color: $black-color;
+  }
+}
