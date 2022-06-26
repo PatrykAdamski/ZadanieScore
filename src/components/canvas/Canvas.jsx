@@ -1,5 +1,6 @@
 import React, { useEffect, useContext } from "react";
 import { CanvasContext } from "../../providers/CanvasProvider";
+
 export const Canvas = () => {
   const {
     startCanvas,
@@ -10,6 +11,7 @@ export const Canvas = () => {
     size,
     brushColor,
     setContext,
+    brushLightness,
   } = useContext(CanvasContext);
 
   useEffect(() => {
@@ -18,7 +20,7 @@ export const Canvas = () => {
 
   useEffect(() => {
     setContext();
-  }, [size, brushColor]);
+  }, [size, brushLightness, brushColor]);
 
   return (
     <canvas

@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useEffect } from "react";
 
 export const CanvasContext = React.createContext();
 
@@ -6,8 +7,12 @@ export const CanvasProvider = ({ children }) => {
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [undoSteps, setUndoSteps] = useState({});
+  const [undo, setUndo] = useState(0);
+
   const [size, setSize] = useState(10);
   const [brushColor, setBrushColor] = useState("black");
+  const [brushLightness, setBrushLightness] = useState("100");
 
   const startCanvas = () => {
     const canvas = canvasRef.current;
@@ -23,6 +28,7 @@ export const CanvasProvider = ({ children }) => {
   };
   const setContext = () => {
     contextRef.current.lineWidth = size;
+    contextRef.current.filter = `brightness(${brushLightness}%)`;
     contextRef.current.strokeStyle = brushColor;
   };
 
@@ -30,6 +36,8 @@ export const CanvasProvider = ({ children }) => {
     const { offsetX, offsetY } = nativeEvent;
     contextRef.current.beginPath();
     contextRef.current.moveTo(offsetX, offsetY);
+    setUndoSteps({ ...undoSteps, [undo + 1]: [{ offsetX, offsetY }] });
+    setUndo(undo + 1);
     setIsDrawing(true);
   };
   const finishDrawing = () => {
@@ -43,6 +51,37 @@ export const CanvasProvider = ({ children }) => {
     const { offsetX, offsetY } = nativeEvent;
     contextRef.current.lineTo(offsetX, offsetY);
     contextRef.current.stroke();
+    const temp = {
+      ...undoSteps,
+    };
+    temp[undo].push({ offsetX, offsetY });
+    setUndoSteps(temp);
+  };
+
+  const undoLastOperation = (e) => {
+    if (e.ctrlKey && e.key === "z") {
+      const data = undoSteps[undo];
+      contextRef.current.strokeStyle = "white";
+      contextRef.current.beginPath();
+      contextRef.current.lineWidth = 20;
+      contextRef.current.moveTo(data[0].offsetX, data[0].offsetY);
+      data.forEach((item, index) => {
+        if (index !== 0) {
+          contextRef.current.lineTo(item.offsetX, item.offsetY);
+          contextRef.current.stroke();
+        }
+      });
+      contextRef.current.closePath();
+      contextRef.current.strokeStyle = brushColor;
+      contextRef.current.lineWidth = size;
+
+      const temp = {
+        ...undoSteps,
+        [undo]: [],
+      };
+      setUndo(undo - 1);
+      setUndoSteps(temp);
+    }
   };
 
   const clearCanvas = () => {
@@ -51,6 +90,14 @@ export const CanvasProvider = ({ children }) => {
     context.fillStyle = "white";
     context.fillRect(0, 0, canvas.width, canvas.height);
   };
+
+  useEffect(() => {
+    document.addEventListener("keydown", undoLastOperation);
+
+    return () => {
+      document.removeEventListener("keydown", undoLastOperation);
+    };
+  }, [undoSteps]);
 
   return (
     <CanvasContext.Provider
@@ -67,6 +114,9 @@ export const CanvasProvider = ({ children }) => {
         size,
         brushColor,
         setBrushColor,
+        undoLastOperation,
+        setBrushLightness,
+        brushLightness,
       }}
     >
       {children}

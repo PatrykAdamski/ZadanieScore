@@ -2,12 +2,18 @@ import React, { useContext } from "react";
 import { CanvasContext } from "../../providers/CanvasProvider";
 
 export const BrushColor = () => {
-  const { setBrushColor } = useContext(CanvasContext);
+  const { setBrushColor, brushColor } = useContext(CanvasContext);
+
+  const styles = {
+    width: `150px`,
+    height: `30px`,
+    backgroundColor: `${brushColor}`,
+  };
 
   return (
     <>
       <p className="dashboard__brush-title">Brush Color</p>
-      <div className="dashboard__brush-color-active"></div>
+      <div style={styles}></div>
       <div
         onClick={() => {
           setBrushColor("blue");
